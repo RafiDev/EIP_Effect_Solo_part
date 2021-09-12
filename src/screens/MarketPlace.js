@@ -5,43 +5,43 @@ const DATA = [
   {
     title: 'EFFETS DE SATURATIONS',
     data: [
-      {id: '1', value: 'Overdrive'},
-      {id: '2', value: 'Distorsion'},
-      {id: '3', value: 'Fuzz'}
+      'Overdrive',
+      'Distorsion',
+      'Fuzz'
     ],
   },
   {
     title: 'EFFETS DE FILTRES',
     data: [
-      {id: '4', value: 'équaliseur'},
-      {id: '5', value: 'wah-wah'},
-      {id: '6', value: 'auto-wah'}
+      'équaliseur',
+      'wah-wah',
+      'auto-wah'
     ],
   },
   {
     title: 'EFFETS TEMPORELS',
     data: [
-      {id: '7', value: 'Delay'},
-      {id: '8', value: 'Reverb'}
+      'Delay',
+      'Reverb'
     ]
   },
   {
     title: 'EFFETS DE MODULATIONS',
     data: [
-      {id: '9', value: 'Chorus'},
-      {id: '10', value: 'Flanger'},
-      {id: '11', value: 'Harmoniser'},
-      {id: '12', value: 'Tremolo'},
-      {id: '13', value: 'Whammy'}
+      'Chorus',
+      'Flanger',
+      'Harmoniser',
+      'Tremolo',
+      'Whammy'
     ]
   },
   {
     title: 'EFFETS DYNAMIQUES',
     data: [
-      {id: '14', value: 'Compression'},
-      {id: '15', value: 'Noise Gate'},
-      {id: '16', value: 'Limiteur'},
-      {id: '17', value: 'Enhancer'}
+      'Compression',
+      'Noise Gate',
+      'Limiteur',
+      'Enhancer'
     ]
   },
 ];
@@ -51,6 +51,8 @@ class MarketPlace extends React.Component {
     super(props);
     this.state = {
       modalVisible: false,
+      secondModalVisible: false,
+      libraries: [],
     };
   };
 
@@ -58,12 +60,32 @@ class MarketPlace extends React.Component {
     this.setState({modalVisible: show})
   }
 
+  secondDisplayModal(show) {
+    this.setState({secondModalVisible: show})
+  }
+
+  getAllPlaylist = () => {
+    fetch('http://api.e-ffect.fr/1/me/library', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'auth-token':
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MGRjMTQyYmU5NWZjZTAwMTUzODBhNmEiLCJpYXQiOjE2MjUwMzYwMjV9.u_-yJL0eJYlFQfZjwuSiivq7eSBew1uM3k_YVZqiaoc',
+      },
+    })
+    .then(response => response.json())
+    .then(responseJson => {
+      console.log(responseJson[0].name);
+    })
+  }
+
   render() {
     return (
         <View style={styles.container}>
           <SectionList
             sections={DATA}
-            keyExtractor={(item, index) => item + index}
+            keyExtractor={(item, index) => index}
             renderItem={({item}) => (
               <>
                 <Modal
@@ -71,11 +93,46 @@ class MarketPlace extends React.Component {
                   animationType="slide"
                   visible={this.state.modalVisible}
                   onRequestClose={() => {
-                    Alert.alert("Modal has now been closed.");
+                    Alert.alert("Modal 1 has now been closed.");
                   }}
                 >
                   <View style={styles.centeredView}>
-                    <Text style={styles.text}>Test</Text>
+                    <Text style={styles.item}>{item}</Text>
+                    <Pressable
+                      style={styles.button}
+                      onPress={() => console.log("liké")}
+                    >
+                      <Text style={styles.text}>J'aime</Text>
+                    </Pressable>
+                    <Modal
+                      presentationStyle="pageSheet"
+                      animationType="slide"
+                      visible={this.state.secondModalVisible}
+                      onRequestClose={() => {
+                        Alert.alert("Modal 2 has now been closed.");
+                      }}
+                    >
+                      <View style={styles.centeredView}>
+                        <Pressable
+                          style={styles.button}
+                          onPress={() => this.getAllPlaylist()}
+                        >
+                          <Text style={styles.text}>get info</Text>
+                        </Pressable>
+                        <Pressable
+                          style={[styles.button, styles.buttonClose]}
+                          onPress={() => {this.secondDisplayModal(!this.state.secondModalVisible)}}
+                        >
+                          <Text style={styles.textStyle}>Annuler</Text>
+                        </Pressable>
+                      </View>
+                    </Modal>
+                    <Pressable
+                      style={styles.button}
+                      onPress={() => this.secondDisplayModal(true)}
+                    >
+                      <Text style={styles.text}>ajouter à une playlist</Text>
+                    </Pressable>
                     <Pressable
                       style={[styles.button, styles.buttonClose]}
                       onPress={() => {this.displayModal(!this.state.modalVisible)}}
@@ -90,7 +147,7 @@ class MarketPlace extends React.Component {
                   <Text
                     style={styles.item}
                   >
-                    {item.value}
+                    {item}
                   </Text>
                 </Pressable>
               </>
